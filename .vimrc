@@ -3,7 +3,6 @@ if empty(glob('~/.vim/autoload/plug.vim'))
     \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
   autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
-
 set tabstop=2       " The width of a TAB is set to 4.
 set shiftwidth=2    " Indents will have a width of 4
 set softtabstop=2   " Sets the number of columns for a TAB
@@ -86,12 +85,13 @@ let g:ansible_loop_keywords_highlight = 'Constant'
 
 " let g:jedi#force_py_version = 3
 let g:jedi#completions_enabled = 1
-let g:jedi#use_tabs_not_buffers = 1
+" let g:jedi#use_tabs_not_buffers = 1
 let g:jedi#show_call_signatures = "1"
 imap <C-Space> <Plug>(jedi#completions)
 
 
 nmap <leader>t :FZF<CR>
+nmap <leader>g :FlyGrep<CR>
 
 inoremap <expr> <TAB> pumvisible() ? "\<C-y>" : "\<CR>"
 inoremap <expr> <Esc> pumvisible() ? "\<C-e>" : "\<Esc>"
@@ -118,7 +118,7 @@ Plug 'tpope/vim-surround'
 Plug 'scrooloose/syntastic'
 Plug 'octol/vim-cpp-enhanced-highlight'
 " Plug 'plasticboy/vim-markdown'
-Plug 'pearofducks/ansible-vim'
+" Plug 'pearofducks/ansible-vim'
 Plug 'tpope/vim-commentary'
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
@@ -139,3 +139,4 @@ Plug 'dense-analysis/ale'
 Plug 'wsdjeg/FlyGrep.vim'
 Plug 'davidhalter/jedi-vim'
 call plug#end()
+
