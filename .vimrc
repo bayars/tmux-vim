@@ -1,126 +1,169 @@
+" ------------------------------
+" Bootstrap vim-plug if not installed
+" ------------------------------
 if empty(glob('~/.vim/autoload/plug.vim'))
-  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
-    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
   autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
-set tabstop=2
+" ------------------------------
+" General Settings
+" ------------------------------
+set nocompatible
+syntax on
+filetype plugin indent on
+
+set number                      " Show line numbers
+set relativenumber              " Show relative numbers
+set cursorline                  " Highlight current line
+
+set tabstop=2                   " Tabs are 4 spaces
 set shiftwidth=2
 set softtabstop=2
-set expandtab
-set backspace=indent,eol,start
-set number
-set relativenumber
-set mouse=n
-set ttymouse=xterm2
-set background=dark
-set term=xterm
-set termguicolors
+set expandtab                   " Convert tabs to spaces
 
-let NERDTreeShowHidden=1
+set ignorecase                  " Case-insensitive search
+set smartcase                   " Unless uppercase present
+set incsearch                   " Highlight as you type
+set hlsearch                    " Highlight matches
+
+set clipboard=unnamedplus        " Use system clipboard
+set mouse=a                      " Mouse enabled everywhere
+set ttymouse=sgr                 " Better mouse support
+
+set splitbelow splitright         " New splits open more naturally
+set complete+=.,w,b,u,t
+set wildmenu                      " Tab completion for commands
+set wildmode=longest:full,full
+
+set updatetime=300               " Faster CursorHold (ALE, gitgutter updates)
+set lazyredraw                   " Don’t redraw mid-macro
+
+set undofile                     " Persistent undo
+set swapfile                      " Keep swap files (optional)
+set backspace=indent,eol,start    " Smarter backspace
+
+" Faster escape (jk to leave insert mode)
+inoremap jk <Esc>
+
+" Leader key
 let mapleader = ","
+" let mapleader=" "
 
-" LaTeX file reading
-filetype plugin on
-set shellslash
-filetype indent on
-let g:tex_flavor='latex'
+" ------------------------------
+" Plugin Management
+" ------------------------------
+call plug#begin('~/.vim/plugged')
 
-if &term =~ '^screen'
-    " tmux will send xterm-style keys when its xterm-keys option is on
-    execute "set <xUp>=\e[1;*A"
-    execute "set <xDown>=\e[1;*B"
-    execute "set <xRight>=\e[1;*C"
-    execute "set <xLeft>=\e[1;*D"
-endif
-
-nmap <leader>t :FZF<CR>
-nmap <leader>g :FlyGrep<CR>
-
-inoremap <expr> <C-j> pumvisible() ? "\<C-n>" : "\<Down>"
-inoremap <expr> <C-k> pumvisible() ? "\<C-p>" : "\<Up>"
-
-call plug#begin()
-function! EnableCodingMode()
-  Plug 'vim-ruby/vim-ruby'
-  Plug 'octol/vim-cpp-enhanced-highlight'
-  " Plug 'plasticboy/vim-markdown'
-  " Plug 'preservim/vim-markdown'
-  Plug 'pearofducks/ansible-vim'
-  Plug 'jiangmiao/auto-pairs'
-  Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
-  Plug 'diepm/vim-rest-console'
-  Plug 'psf/black', { 'branch': 'stable' }
-  Plug 'heavenshell/vim-pydocstring', { 'do': 'make install', 'for': 'python' }
-  Plug 'dense-analysis/ale'
-  Plug 'davidhalter/jedi-vim'
-  Plug 'towolf/vim-helm'
-  PlugInstall | source $MYVIMRC
-endfunction
+" File navigation
 Plug 'preservim/nerdtree'
-Plug 'preservim/nerdcommenter'
-Plug 'tpope/vim-surround'
-Plug 'scrooloose/syntastic'
-Plug 'tpope/vim-commentary'
-Plug 'junegunn/fzf'
+Plug 'Xuyuanp/nerdtree-git-plugin'
+Plug 'ryanoasis/vim-devicons'
+
+" Search / Fuzzy finder
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
-Plug 'wsdjeg/FlyGrep.vim'
-Plug 'tpope/vim-eunuch'
-Plug 'terryma/vim-multiple-cursors'
-Plug 'godlygeek/tabular'
+
+" Git integration
 Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter'
-Plug 'Xuyuanp/nerdtree-git-plugin'
+
+" Editing enhancements
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-commentary'
+Plug 'jiangmiao/auto-pairs'
+Plug 'terryma/vim-multiple-cursors'
+Plug 'godlygeek/tabular'
+Plug 'tpope/vim-repeat'          " Repeat surround/comment actions with .
+
+" Linting / Formatting (modern replacement for syntastic)
+Plug 'dense-analysis/ale'
+
+" Languages / Syntax
+Plug 'vim-ruby/vim-ruby'
+Plug 'octol/vim-cpp-enhanced-highlight'
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+Plug 'towolf/vim-helm'
+Plug 'pearofducks/ansible-vim'
+Plug 'plasticboy/vim-markdown'
+
+" Utilities
+Plug 'tpope/vim-eunuch'          " :Rename, :Delete, etc.
+Plug 'diepm/vim-rest-console'    " Test REST APIs from Vim
+
 call plug#end()
 
-function! EnableCodingMode()
-  let g:ale_completion_enabled = 1
-  let g:ale_lint_on_text_changed = 'always'
-  let g:ale_python_ruff_executable = 'ruff'
-  let g:ale_python_ruff_options = ''
-  let g:ale_linters = {
-  \   'python': ['ruff'],
-  \}
-  let g:ale_yaml_yamllint_options='-d "{extends: relaxed, rules: {line-length: disable}}"'
+" ------------------------------
+" Plugin Configurations
+" ------------------------------
 
-  " poetry settings
-  let g:ale_fix_on_save = 1
-  let g:ale_python_auto_poetry = 1
-  let g:ale_python_autoflake_auto_poetry = 1
-  let g:ale_python_autoimport_auto_poetry = 1
-  let g:ale_python_autopep8_auto_poetry = 1
+" NERDTree
+nnoremap <leader>n :NERDTreeToggle<CR>
+let g:NERDTreeShowHidden=1
 
-  " let g:ale_python_black_auto_poetry = 1
-  let g:ale_python_flake8_auto_poetry = 1
-  let g:ale_python_flakehell_auto_poetry = 1
-  let g:ale_python_isort_auto_poetry = 1
+" FZF shortcuts
+" nnoremap <C-p> :Files<CR>
+nmap <leader>t :Files<CR>
+nnoremap <leader>r :Rg<CR>
+nnoremap <leader>b :Buffers<CR>
+nnoremap <leader>h :History<CR>
 
-  " let g:ale_python_mypy_auto_poetry = 1
-  let g:ale_python_pycodestyle_auto_poetry = 1
-  let g:ale_python_pyflakes_auto_poetry = 1
+" Git fugitive
+nnoremap <leader>g :Git<CR>
+nnoremap <leader>gc :Git commit<CR>
+nnoremap <leader>gp :Git push<CR>
+nnoremap <leader>gl :Git log --oneline --graph --decorate<CR>
 
-  " let g:ale_python_pylint_auto_poetry = 1
-  let g:ale_python_ruff_auto_poetry = 1
-  let g:ale_python_ruff_executable = 'poetry run ruff'
-  let g:ale_python_ruff_format_auto_poetry = 1
+" ALE (linting & fixing)
+let g:ale_linters_explicit = 1
+let g:ale_fix_on_save = 1
+let g:ale_linters = {
+\   'python': ['flake8', 'mypy'],
+\   'go': ['gopls'],
+\   'javascript': ['eslint'],
+\   'sh': ['shellcheck'],
+\}
+let g:ale_fixers = {
+\   '*': ['remove_trailing_lines', 'trim_whitespace'],
+\   'python': ['black'],
+\   'go': ['gofmt'],
+\   'javascript': ['prettier'],
+\}
+nnoremap <leader>af :ALEFix<CR>
+nnoremap <leader>an :ALENext<CR>
+nnoremap <leader>ap :ALEPrevious<CR>
 
-  " Ale eslint
-  let g:ale_fixers = {}
-  let g:ale_fixers.javascript = ['eslint']
-  let g:ale_fix_on_save = 1
+" Markdown
+let g:vim_markdown_folding_disabled = 1
+let g:vim_markdown_conceal = 0
 
-  " Ansible Settings
-  let g:ansible_extra_keywords_highlight = 1
-  let g:ansible_name_highlight = 'd'
-  let g:ansible_attribute_highlight = "ob"
-  let g:ansible_normal_keywords_highlight = 'Constant'
-  let g:ansible_loop_keywords_highlight = 'Constant'
+" Ansible
+let g:ansible_extra_keywords_highlight = 1
+let g:ansible_name_highlight = 'd'
+let g:ansible_attribute_highlight = "ob"
+let g:ansible_normal_keywords_highlight = 'Constant'
+let g:ansible_loop_keywords_highlight = 'Constant'
 
-  " let g:jedi#force_py_version = 3
-  let g:jedi#completions_enabled = 1
-  " let g:jedi#use_tabs_not_buffers = 1
-  let g:jedi#show_call_signatures = "1"
-  imap <C-Space> <Plug>(jedi#completions)
-endfunction
+" Go
+let g:go_def_mapping_enabled = 0 " Don't override gd
+autocmd FileType go nmap <leader>r :GoRun<CR>
+autocmd FileType go nmap <leader>t :GoTest<CR>
 
-command! CodingMode call EnableCodingMode()
+" REST Console
+nnoremap <leader>rr :call VrcQuery()<CR>
+
+" ------------------------------
+" QoL Shortcuts
+" ------------------------------
+nnoremap <leader>w :w<CR>            " Save
+nnoremap <leader>q :q<CR>            " Quit
+nnoremap <leader>x :x<CR>            " Save & quit
+nnoremap <leader>sv :source $MYVIMRC<CR> " Reload config
+nnoremap <leader>ev :vsplit $MYVIMRC<CR> " Edit config
+
+" Move between splits easier
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
